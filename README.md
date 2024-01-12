@@ -1,0 +1,1 @@
+A simple scraper that extracts data from multiple weather forecast websites to provide an estimate of the weather.
