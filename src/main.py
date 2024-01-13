@@ -1,10 +1,9 @@
-from scraper import get_weather2umbrella, get_accuweather
+from scraper import get_weather2umbrella, get_accuweather, get_yrno
 from forecast import Forecast
 
 def main():
-    weathers1 = get_weather2umbrella()
-    weathers2 = get_accuweather()
-    combined = Forecast.combine([weathers1, weathers2])
+    forecasts = [get_weather2umbrella(), get_accuweather(), get_yrno()]
+    combined = Forecast.combine(forecasts)
     for forecast in combined:
         print(forecast)
 

@@ -15,11 +15,15 @@ def get_weather2umbrella() -> list:
 
     for day in week_days:
         day_date = day.findNext("div", attrs={"class": "day_label"}).text.strip()
+
         temperatures = day.findNext("div", attrs={"class": "day_temperatures"})
+
         max_temp = int(temperatures.findNext("p", attrs={"class": "day_max"}).text.strip()[:-1])
         min_temp = int(temperatures.findNext("p", attrs={"class": "day_min"}).text.strip()[:-1])
+
         _, day, month = day_date.split()
         day = day[:-1]
+
         forecasts.append(Forecast.create_forecast(day, month, min_temp, max_temp))
 
     return forecasts
@@ -32,10 +36,34 @@ def get_accuweather() -> list:
 
     for day in week_days:
         day_date = day.findNext("h2", attrs={"class": "date"}).text.strip().split("\n")[1]
+
         temperatures = day.findNext("div", attrs={"class": "temp"})
+
         max_temp = int(temperatures.findNext("span", attrs={"class": "high"}).text.strip()[:-1])
         min_temp = int(temperatures.findNext("span", attrs={"class": "low"}).text.strip()[1:-1])
+        
         month, day = (int(value) for value in day_date.split("/"))
+
         forecasts.append(Forecast.create_forecast(day, month, min_temp, max_temp))
 
+    return forecasts
+
+def get_yrno()-> list:
+    forecasts = []
+    data = get_soup('https://www.yr.no/en/forecast/daily-table/2-792680/Serbia/Central%20Serbia/Belgrade/Belgrade')
+    week_days = data.find("ol", attrs={"class": "daily-weather-list__intervals"}).findAllNext("li", attrs={"class": "daily-weather-list-item"})
+
+    for day in week_days:
+        day_date = day.findNext("h3").text.strip()
+
+        temperatures = day.findNext("span", attrs={"class": "min-max-temperature"})
+
+        max_temp = int(temperatures.findNext("span", class_=lambda value: value and 'temperature__max' in value).text[:-1])
+        min_temp = int(temperatures.findNext("span", class_=lambda value: value and 'temperature__min' in value).text[:-1])
+
+        day, month = day_date.split()[1:]
+        month = month[:-1]
+
+        forecasts.append(Forecast.create_forecast(day, month, min_temp, max_temp))
+    
     return forecasts

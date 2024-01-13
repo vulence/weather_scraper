@@ -1,7 +1,6 @@
 from typing import Self
 from sys import stderr
 from datetime import datetime
-from math import floor
 from statistics import mean
 
 class Forecast:
@@ -34,13 +33,11 @@ class Forecast:
 
         for day_forecasts in zipped_forecasts:
             date, *rest = day_forecasts[0].date, *zip(*[(forecast.min_temp, forecast.max_temp) for forecast in day_forecasts])
-            min_temp = floor(mean(rest[0]))
-            max_temp = floor(mean(rest[1]))
+            min_temp = round(mean(rest[0]))
+            max_temp = round(mean(rest[1]))
             combined_forecasts.append(Forecast(date, min_temp, max_temp))
 
         return combined_forecasts
-
-
 
     @staticmethod
     def cast_temp_to_int(value) -> int | None:
@@ -49,7 +46,7 @@ class Forecast:
         except ValueError:
             return None
         
-    # Receives days as a number and months either as a number or a full-length month string
+    # Receives days as a number and months either as a number or a string
     @staticmethod
     def get_full_date(day: int, month: int | str) -> datetime:
         year = datetime.now().year
@@ -57,7 +54,13 @@ class Forecast:
         if isinstance(month, int):
             date = datetime.strptime(f"{day}/{month}/{year}", "%d/%m/%Y")
         elif isinstance(month, str):
-            date = datetime.strptime(f"{day}/{month}/{year}", "%d/%B/%Y")
+            try:
+                date = datetime.strptime(f"{day}/{month}/{year}", "%d/%B/%Y")
+            except ValueError:
+                try:
+                    date = datetime.strptime(f"{day}/{month}/{year}", "%d/%b/%Y")
+                except ValueError:
+                    raise ValueError(f"Invalid date format ({day}/{month}).")
         else:
             raise TypeError(f"The arguments are invalid.")
 
